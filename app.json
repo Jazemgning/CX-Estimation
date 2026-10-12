@@ -1,0 +1,32 @@
+{
+  "id": "85ed39a7-268d-474b-b809-d2f5b118df4b",
+  "name": "AL_JoslynoProject",
+  "publisher": "Joslyno Azemgning",
+  "version": "1.0.0.0",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "28.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "17.1",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
