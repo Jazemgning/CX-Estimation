@@ -15,7 +15,7 @@ codeunit 50100 "BonusStufeManagement"
     var
         Level: Code[20];
         LevelMsg: Label 'Der Kunde %1 hat %2 Bonuspunkte und ist %3.', Comment = '%1 = Kundenname, %2 = Bonuspunkte, %3 = Bonusstufe';
-        NoLevelMsg: Label 'Der Kunde %1 hat %2 Bonuspunkte und noch keine Bonusstufe erreicht.', Comment = '%1 = Kundenname, %2 = Bonuspunkte';
+        NoLevelMsg: Label 'Der Kunde %1 hat %2 Bonuspunkte und noch keine Bonusstufe erreicht..', Comment = '%1 = Kundenname, %2 = Bonuspunkte';
     begin
         Level := GetBonusLevel(Customer."Bonus Points");
         if Level = '' then
