@@ -151,7 +151,7 @@ gespeichert. Nach dem Neuaufbau: AL: Download Symbols, dann F5.
 - Restore ist noch nicht getestet. Er überschreibt die Daten, daher nicht
   auf MyContainer testen, sondern höchstens in einem zweiten Container.
 - RAM 15,8 GB liegt knapp am Mindestwert des Leitfadens (empfohlen 32 GB).
-- BcContainerHelper ist 6.1.18, neu ist 6.1.19 (Patch). Aktualisieren:
+- BcContainerHelper wurde am 2026-10-13 auf 6.1.19 aktualisiert. Update:
   Update-Module BcContainerHelper (Admin-PowerShell, Leitfaden 10.2).
 - Rechte für BcContainerHelper und die hosts-Datei wurden am 2026-10-13
   mit Check-BcContainerHelperPermissions -Fix gesetzt (Admin nötig).
@@ -183,3 +183,53 @@ ein harmloser Lesefehler des exportierten Logs auf dem Host.
 
 Hinweis zu Get-BcContainerEventLog: Ohne -containerName wird der
 Standardname "bcserver" verwendet und der Befehl scheitert.
+
+======================================================================
+8. HERSTELLERANGABEN GEPRÜFT (2026-10-13)
+======================================================================
+Anlass: Hinweis am Ende des Leitfadens (Kapitel 14). Geprüft gegen
+Microsoft Learn (Suche vom 2026-10-13) und die aktuelle Artifact-Liste.
+Einsatzzweck hier: lokale Entwicklungs-/Test-Sandbox, KEINE Produktion.
+
+Windows 11 und Container-Image ltsc2025: in Ordnung
+- Windows 11 mit Windows-Server-2025-Image: Hyper-V-Isolation wird
+  unterstützt, Prozess-Isolation ab Windows 11 24H2. Host hier: 25H2.
+- Host-Build (26200.9457) und Image-Build (26100.33438) stimmen nicht
+  überein. Das ist mit Hyper-V-Isolation zulässig. Docker meldet
+  "Default Isolation: hyperv".
+- Microsoft unterstützt Container auf Windows 11 Pro/Enterprise nur mit
+  installiertem Hyper-V und Hyper-V-Isolation (Standard). Beides ist
+  bei dieser Umgebung erfüllt.
+- Docker Desktop selbst wird von Microsoft NICHT supportet, sondern von
+  Docker (Community-Foren bzw. Docker-Support).
+
+Hardware: erfüllt
+- Microsoft nennt für AL-Entwicklung: 4 Kerne, 16 GB RAM für Entwicklung
+  und kleine Erweiterungen (< 1000 Objekte), 32-64 GB für große. Für BC-
+  Container mindestens 6 GB RAM und ca. 15 GB Platz.
+- Hier: 8 Threads, 15,8 GB nutzbarer RAM, 318 GB frei. Für dieses kleine
+  Projekt ausreichend. Bei größeren Erweiterungen mehr RAM einplanen.
+
+Business Central: Sandbox, nicht neueste Version
+- Container: 28.5.54151.55720 (DE).
+- Neuester 28.x-Build laut Get-BcArtifactUrl: 28.5.54151.56218, also
+  ein neuerer Build derselben Version (28.5).
+- Neueste Hauptversion: 29.0.54011.56237 (DE, Sandbox).
+- Support Version 28.x laut Microsoft Q&A (Antwort vom August 2026):
+  endet am 13.10.2027 (Modern Lifecycle Policy). Quelle ist ein Q&A-
+  Beitrag, nicht die offizielle Lifecycle-Seite. Vor einer wichtigen
+  Entscheidung dort gegenprüfen.
+- Die Modern Policy verlangt, On-Premises-Installationen aktuell zu
+  halten. Das betrifft Produktivsysteme, nicht diese Sandbox.
+- Direkt auf 29 wechseln ist nicht nötig. Die App-Version in app.json
+  (application 28.0.0.0) passt zum Container.
+
+Werkzeuge:
+- BcContainerHelper: 6.1.19 (am 2026-10-13 von 6.1.18 aktualisiert).
+- Docker Desktop: Engine und Client 29.8.2. Ob das die neueste Version
+  ist, wurde nicht geprüft.
+
+Ergebnis: Für eine Entwicklungsumgebung ist nichts zu beheben. Das
+Update von BcContainerHelper ist erledigt. Soll später auf BC 29
+entwickelt werden, neuen Container mit neuem Artifact bauen (Abschnitt 5)
+und vorher Backup erstellen (Abschnitt 2).
