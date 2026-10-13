@@ -1,0 +1,129 @@
+﻿DOKUMENTATION – Entwicklungscontainer AL_JoslynoProject
+Stand: 2026-10-13
+Grundlage: Business_Central_Docker_Installationsleitfaden.pdf (Kapitel 6, 10 und 13)
+
+======================================================================
+1. ARTIFACT UND CONTAINER
+======================================================================
+Containername     : MyContainer
+Image             : mcr.microsoft.com/businesscentral:ltsc2025
+Container erstellt: 2026-10-05
+BC-Typ            : Sandbox
+Lokalisierung     : DE (Deutschland)
+BC-Version        : 28.5.54151.55720
+Plattform         : 28.0.54946.55473
+Artifact-URL      : https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/28.5.54151.55720/de
+Serverinstanz     : BC
+Authentifizierung : UserPassword
+Docker-Engine     : Windows-Container, Standard-Isolation Hyper-V
+Host              : Windows 11 Pro 25H2, Build 26200.9457
+
+Quelle der Werte: Befehl Get-BcContainerArtifactUrl -containerName MyContainer
+(BcContainerHelper 6.1.18) und docker inspect MyContainer (Labels).
+
+Artifact erneut abfragen:
+    Import-Module BcContainerHelper
+    Get-BcContainerArtifactUrl -containerName MyContainer
+
+======================================================================
+2. BACKUP-VERFAHREN
+======================================================================
+Alle Befehle in Windows PowerShell 5.1 als Administrator ausführen.
+Hinweis: Die Befehle stammen aus BcContainerHelper 6.1.18 (Parameter
+geprüft). Ein Backup und ein Restore wurden auf diesem Rechner noch
+NICHT durchgespielt. Beides einmal testen, bevor man sich darauf verlässt.
+
+Wann sichern: vor jedem Löschen des Containers, vor einem Versionswechsel
+und vor größeren Schemaänderungen (Tabellen/Felder ändern oder entfernen).
+
+2.1 Zielordner anlegen
+    $backup = "C:\BC\Backup\$(Get-Date -Format 'yyyy-MM-dd')"
+    New-Item -ItemType Directory -Force -Path $backup
+
+2.2 Datenbank sichern (.bak)
+    Backup-BcContainerDatabases -containerName MyContainer -bakFolder $backup
+
+    Alternativ als .bacpac (portabel, auch für andere BC-Versionen):
+    Export-BcContainerDatabasesAsBacpac -containerName MyContainer -bacpacFolder $backup
+
+2.3 App sichern
+- Der AL-Quellcode liegt in Git (Branch CX-Branch) und ist damit gesichert.
+  Vor dem Löschen sicherstellen, dass alle Änderungen committet sind.
+- Die kompilierte .app (AL: Package) liegt im Projektordner. Sie steht in
+  .gitignore und gehört NICHT ins Git. Bei Bedarf in den Backup-Ordner
+  kopieren:
+    Copy-Item "C:\Users\JoslynoAzemgning\Documents\AL\AL_JoslynoProject\*.app" $backup
+
+2.4 Dokumentation sichern
+    CLAUDE.md und SPEC.md stehen in .gitignore und sind NICHT im Git.
+    Dokumentation.txt ist nicht ignoriert und kann committet werden.
+    Alle drei Dateien trotzdem in den
+    Backup-Ordner kopieren:
+    Copy-Item "C:\Users\JoslynoAzemgning\Documents\AL\AL_JoslynoProject\CLAUDE.md","C:\Users\JoslynoAzemgning\Documents\AL\AL_JoslynoProject\SPEC.md","C:\Users\JoslynoAzemgning\Documents\AL\AL_JoslynoProject\Dokumentation.txt" $backup
+
+2.5 Backup prüfen
+    Get-ChildItem $backup -Recurse | Select-Object FullName, Length
+    Es muss mindestens eine .bak oder .bacpac Datei größer 0 Byte vorhanden sein.
+
+======================================================================
+3. RESTORE
+======================================================================
+Datenbank aus einer .bak-Datei in den laufenden Container zurückspielen:
+    Restore-DatabasesInBcContainer -containerName MyContainer -bakFolder $backup
+
+Hinweis: Dabei werden die Daten im Container überschrieben. Vorher prüfen,
+dass es der richtige Container und der richtige Backup-Ordner ist.
+Nach dem Restore die App neu veröffentlichen (F5 in VS Code).
+
+======================================================================
+4. LÖSCHVERFAHREN (Container entfernen)
+======================================================================
+ACHTUNG: Das Löschen entfernt den Container samt Datenbank unwiderruflich.
+
+Ablauf:
+    1. Backup nach Abschnitt 2 erstellen und prüfen.
+    2. Git-Stand prüfen:  git status   (alles Wichtige committet?)
+    3. Container entfernen:
+           Remove-BcContainer -containerName MyContainer
+    4. Kontrolle:
+           docker ps -a
+       MyContainer darf nicht mehr erscheinen.
+    5. Hosts-Einträge (mycontainer, mycontainer-default) entfernt
+       BcContainerHelper in der Regel selbst. Bei Bedarf in
+       C:\Windows\System32\drivers\etc\hosts prüfen.
+
+Das Image (ca. 10,8 GB) bleibt auf dem Rechner und beschleunigt den
+Neuaufbau. Wird der Platz gebraucht:
+    docker images
+    docker rmi mcr.microsoft.com/businesscentral:ltsc2025
+
+======================================================================
+5. CONTAINER NEU AUFBAUEN / BC-VERSION WECHSELN
+======================================================================
+Gemäß Leitfaden Kapitel 10.4:
+    Daten/Apps sichern -> alten Container entfernen -> neues Artifact
+    wählen -> neuen Container erstellen -> Daten/Apps wiederherstellen.
+
+Mit demselben Artifact neu erstellen (Sandbox, DE, BC 28.5):
+    Import-Module BcContainerHelper
+    $credential = Get-Credential
+    $artifactUrl = "https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/28.5.54151.55720/de"
+    New-BcContainer `
+        -accept_eula `
+        -containerName MyContainer `
+        -artifactUrl $artifactUrl `
+        -credential $credential `
+        -auth UserPassword `
+        -updateHosts
+
+Das Kennwort wird nur im Credential-Dialog eingegeben und nirgends
+gespeichert. Nach dem Neuaufbau: AL: Download Symbols, dann F5.
+
+======================================================================
+6. OFFENE PUNKTE
+======================================================================
+- Backup und Restore sind noch nicht getestet.
+- Ablageort C:\BC\Backup ist ein Vorschlag und noch nicht angelegt.
+- RAM 15,8 GB liegt knapp am Mindestwert des Leitfadens (empfohlen 32 GB).
+- Hyper-V-/Containers-Feature nicht per Abfrage bestätigt (Adminrechte
+  nötig); der laufende Docker-Betrieb belegt es indirekt.

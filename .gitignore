@@ -2,3 +2,5 @@
 .snapshots/
 *.app
 .vscode/rad.json
+CLAUDE.md
+SPEC.md
