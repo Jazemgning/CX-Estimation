@@ -125,5 +125,6 @@ gespeichert. Nach dem Neuaufbau: AL: Download Symbols, dann F5.
 - Backup und Restore sind noch nicht getestet.
 - Ablageort C:\BC\Backup ist ein Vorschlag und noch nicht angelegt.
 - RAM 15,8 GB liegt knapp am Mindestwert des Leitfadens (empfohlen 32 GB).
-- Hyper-V-/Containers-Feature nicht per Abfrage bestätigt (Adminrechte
-  nötig); der laufende Docker-Betrieb belegt es indirekt.
+
+Erledigt (geprüft 2026-10-13): Hypervisor erkannt, Features Hyper-V und
+Containers installiert, Dienste vmms, vmcompute und hns laufen.
