@@ -38,15 +38,21 @@ Artifact erneut abfragen:
 2. BACKUP-VERFAHREN
 ======================================================================
 Alle Befehle in Windows PowerShell 5.1 als Administrator ausführen.
-Hinweis: Die Befehle stammen aus BcContainerHelper 6.1.18 (Parameter
-geprüft). Ein Backup und ein Restore wurden auf diesem Rechner noch
-NICHT durchgespielt. Beides einmal testen, bevor man sich darauf verlässt.
+Hinweis: Die Befehle stammen aus BcContainerHelper 6.1.18.
+Getestet am 2026-10-13: BACKUP (3 .bak-Dateien erstellt, siehe 2.5).
+NICHT getestet: RESTORE (siehe Abschnitt 3).
+
+Der Backup-Ordner muss im Container eingebunden sein, sonst bricht der
+Befehl mit "The path ... is not shared with the container" ab. Eingebunden
+ist u. a. C:\ProgramData\BcContainerHelper (Prüfung: docker inspect
+MyContainer --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}').
+Ein Ordner wie C:\BC\Backup funktioniert deshalb NICHT.
 
 Wann sichern: vor jedem Löschen des Containers, vor einem Versionswechsel
 und vor größeren Schemaänderungen (Tabellen/Felder ändern oder entfernen).
 
 2.1 Zielordner anlegen
-    $backup = "C:\BC\Backup\$(Get-Date -Format 'yyyy-MM-dd')"
+    $backup = "C:\ProgramData\BcContainerHelper\Backup\$(Get-Date -Format 'yyyy-MM-dd')"
     New-Item -ItemType Directory -Force -Path $backup
 
 2.2 Datenbank sichern (.bak)
@@ -73,6 +79,17 @@ und vor größeren Schemaänderungen (Tabellen/Felder ändern oder entfernen).
 2.5 Backup prüfen
     Get-ChildItem $backup -Recurse | Select-Object FullName, Length
     Es muss mindestens eine .bak oder .bacpac Datei größer 0 Byte vorhanden sein.
+
+    Ergebnis des Tests vom 2026-10-13 (Ordner ...\Backup\2026-10-13):
+        app.bak      648 MB   (Anwendungsdatenbank CRONUS)
+        default.bak  366 MB   (Mandant default)
+        tenant.bak   342 MB   (Tenant-Verwaltung)
+    Zusammen rund 1,3 GB. Für ein vollständiges Backup werden alle drei
+    Dateien gebraucht.
+
+    Wichtig: Wer den Container oder BcContainerHelper-Ordner aufräumt,
+    könnte auch das Backup verlieren. Wichtige Backups zusätzlich auf
+    eine andere Platte oder einen anderen Rechner kopieren.
 
 ======================================================================
 3. RESTORE
@@ -131,8 +148,8 @@ gespeichert. Nach dem Neuaufbau: AL: Download Symbols, dann F5.
 ======================================================================
 6. OFFENE PUNKTE
 ======================================================================
-- Backup und Restore sind noch nicht getestet.
-- Ablageort C:\BC\Backup ist ein Vorschlag und noch nicht angelegt.
+- Restore ist noch nicht getestet. Er überschreibt die Daten, daher nicht
+  auf MyContainer testen, sondern höchstens in einem zweiten Container.
 - RAM 15,8 GB liegt knapp am Mindestwert des Leitfadens (empfohlen 32 GB).
 - BcContainerHelper ist 6.1.18, neu ist 6.1.19 (Patch). Aktualisieren:
   Update-Module BcContainerHelper (Admin-PowerShell, Leitfaden 10.2).
