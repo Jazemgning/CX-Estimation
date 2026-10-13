@@ -21,6 +21,15 @@ Host              : Windows 11 Pro 25H2, Build 26200.9457
 Quelle der Werte: Befehl Get-BcContainerArtifactUrl -containerName MyContainer
 (BcContainerHelper 6.1.18) und docker inspect MyContainer (Labels).
 
+Adressen (laut docker logs):
+    Web Client  : http://MyContainer/BC/?tenant=default
+    Dev-Server  : http://MyContainer
+    Instanz     : BC, Tenant: default
+    Die Container-IP wechselt bei jedem Neustart. Der hosts-Eintrag wird
+    dabei automatisch neu geschrieben (Schreibrecht auf die hosts-Datei
+    nötig, siehe Abschnitt 6).
+Speicher im Container: 8,5 GB gesamt, ca. 6,6-6,8 GB frei (nach dem Start).
+
 Artifact erneut abfragen:
     Import-Module BcContainerHelper
     Get-BcContainerArtifactUrl -containerName MyContainer
@@ -125,6 +134,35 @@ gespeichert. Nach dem Neuaufbau: AL: Download Symbols, dann F5.
 - Backup und Restore sind noch nicht getestet.
 - Ablageort C:\BC\Backup ist ein Vorschlag und noch nicht angelegt.
 - RAM 15,8 GB liegt knapp am Mindestwert des Leitfadens (empfohlen 32 GB).
+- BcContainerHelper ist 6.1.18, neu ist 6.1.19 (Patch). Aktualisieren:
+  Update-Module BcContainerHelper (Admin-PowerShell, Leitfaden 10.2).
+- Rechte für BcContainerHelper und die hosts-Datei wurden am 2026-10-13
+  mit Check-BcContainerHelperPermissions -Fix gesetzt (Admin nötig).
 
 Erledigt (geprüft 2026-10-13): Hypervisor erkannt, Features Hyper-V und
 Containers installiert, Dienste vmms, vmcompute und hns laufen.
+
+======================================================================
+7. PRÜFUNG NACH LEITFADEN 11.4 (2026-10-13)
+======================================================================
+Virtualisierung, Hyper-V/Containers, Docker, Windows-Engine,
+BcContainerHelper, Artifact, RAM/Speicher: in Ordnung (siehe oben).
+
+docker logs MyContainer: beide Starts enden mit "Ready for connections!"
+(Initialisierung 30 s bzw. 17 s), keine Fehler.
+
+BC-Eventlog (Get-BcContainerEventLog -containerName MyContainer):
+Das Log enthält Fehler und Warnungen vom Containerstart (ca. 08:12 Uhr).
+Gelesen und bewertet wurde nur ein Fehler: Ereignis 701,
+NullReferenceException in NavSqlConnectionScope.AcquireSqlConnectionFromPool,
+ausgelöst durch eine Hintergrund-Kachel des Rollencenters (Microsoft-
+Codeunit 1311, OverduePurchaseInvoiceAmount). Ursache vermutlich: Der
+Server war schneller als der SQL Server beim Start. Unkritisch, keine
+eigenen Objekte beteiligt. Die zwei weiteren Fehler wurden nicht gelesen.
+Der Container ist healthy, F5 funktioniert.
+Hinweis: Bei Fehlern, die später im Betrieb wieder auftreten, neu prüfen.
+Ereignis 49930 (MSSQL$SQLEXPRESS, "Beschreibung nicht gefunden") ist
+ein harmloser Lesefehler des exportierten Logs auf dem Host.
+
+Hinweis zu Get-BcContainerEventLog: Ohne -containerName wird der
+Standardname "bcserver" verwendet und der Befehl scheitert.
