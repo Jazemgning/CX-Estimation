@@ -20,7 +20,7 @@ page 50100 Name
                     ToolTip = 'Name der Bonusstufe, z. B. GOLD';
 
                 }
-                field("Minimale Stufe"; Rec."Minimum Reward Points")
+                field("Minimum Reward Points"; Rec."Minimum Reward Points")
                 {
                     ToolTip = 'Punkte, die ein Kunde mindestens braucht';
                 }
