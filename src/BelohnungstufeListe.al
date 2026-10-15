@@ -13,6 +13,7 @@ page 50100 Name
         area(Content)
         {
             repeater(General)
+
             {
                 field(Level; Rec.Level)
                 {
