@@ -11,7 +11,7 @@ pageextension 50100 "Client Bonus" extends "Customer Card"
             }
         }
     }
-    actions                                                   // ← neu
+    actions
     {
         addlast(processing)
         {
