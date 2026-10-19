@@ -4,7 +4,7 @@ page 50101 "Belohnungstufekarte"
     ApplicationArea = All;
     SourceTable = Belohnungstufe;
     CardPageId = "Belohnungstufekarte";
-    caption = 'Bonusstuferte';
+    caption = 'Bonusstufe';
 
     layout
     {
