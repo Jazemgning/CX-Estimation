@@ -12,7 +12,7 @@
             "startupObjectId": 50100,
             "startupObjectType": "Page",
             "breakOnError": "ExcludeTry",
-            "schemaUpdateMode": "ForceSync",
+            "schemaUpdateMode": "Synchronize",
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true,
