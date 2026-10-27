@@ -23,4 +23,14 @@ codeunit 50100 "BonusStufeManagement"
         else
             Message(LevelMsg, Customer.Name, Customer."Bonus Points", Level);
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterValidateEvent', 'Bonus Points', false, false)]
+    local procedure OnAfterValidateBonusPoints(var Rec: Record Customer)
+    var
+        Level: Code[20];
+    begin
+        Level := GetBonusLevel(Rec."Bonus Points");
+        ShowBonusLevel(Rec);
+    end;
+
 }

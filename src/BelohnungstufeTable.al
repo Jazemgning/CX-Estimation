@@ -18,17 +18,17 @@ table 50100 "Belohnungstufe"
             DataClassification = CustomerContent;
             MinValue = 0;
             NotBlank = true;
-
             trigger OnValidate();
             var
                 RewardLevel: Record "Belohnungstufe";
-                tempPoints: Integer;
             begin
-                tempPoints := "Minimum Reward Points";
-                RewardLevel.SetRange("Minimum Reward Points", tempPoints);
-                if not RewardLevel.IsEmpty() then
+                RewardLevel.SetRange("Minimum Reward Points", "Minimum Reward Points");
+                RewardLevel.SetFilter(Level, '<>%1', Level);
+                if not RewardLevel.IsEmpty() then begin
                     Error('Minimum Reward Points must be unique');
+                end;
             end;
+
         }
     }
 
