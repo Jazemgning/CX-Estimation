@@ -1,4 +1,4 @@
-codeunit 50100 "BonusStufeManagemnt"
+codeunit 50100 "BonusStufeManagement"
 {
     procedure GetBonusLevel(BonusPoints: Integer): Code[20]
     var
